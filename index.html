@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <script src="/socket.io/socket.io.js"></script>
+    <script>
+      var socket = io.connect('http://localhost');
+      socket.on('new message', function (data) {
+        console.log(data);
+        document.getElementById('messages').innerHTML += '<b>' + data.from + ': </b>' + data.message + '</br />';
+      });
+    </script>
+  </head>
+  <body>
+    <input type="text" id="name" placeholder="Name plz" />
+    <textarea id="message"></textarea>
+    <button class="btn" id="send">SEND</button>
+    <div id="messages"></div>
+  <script>
+    document.getElementById('send').addEventListener('click', function() {
+      var data = {
+        'name': document.getElementById('name').value,
+        'message': document.getElementById('message').value
+      }
+      console.log(data);
+      socket.emit('message', data);
+    });
+  </script>
+  </body>
+</html>

@@ -21,7 +21,6 @@ socket.on('whoshere', function(data) {
   }
   document.getElementById('users').innerHTML = append.join('');
 });
-console.log(window.innerHeight)
 document.getElementById('messages').style.height = window.innerHeight - 170 + 'px';
 document.getElementById('sendmessage').addEventListener('submit', function(e) {
   var data = {

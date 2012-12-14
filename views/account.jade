@@ -6,5 +6,9 @@ block content
       h1= title
       p You are logged in as #{user.username}
 
-      a(href="/logout").btn.btn-danger Log out!
-      a(href="/chat").btn.btn-danger Back to chat!
+      a(href="/logout").btn.btn-danger
+        i.icon-signout
+        |  Log out!
+      a(href="/chat").btn.btn-danger
+        i.icon-comments-alt
+        |  Back to chat!

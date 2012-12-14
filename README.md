@@ -2,6 +2,8 @@
 
 <p>If you are wondering why the client js is simple, it is just because I wanted to write the client with no libraries needed.</p>
 
+<p>TODOS are too many to be counted, but I'd rather go on to a new project</p>
+
 <h3>Install:</h3>
 <ul>
 <li>npm install</li>

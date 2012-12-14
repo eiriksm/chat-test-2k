@@ -17,7 +17,7 @@ socket.on('history', function(data) {
 socket.on('whoshere', function(data) {
   append = [];
   for (var i in data.users) {
-    append.push('<li><a href="/user/' + data.users[i].id + '">' + data.users[i].name + '<i class="icon-chevron-right pull-right"></i></a></li>');
+    append.push('<li><a href="/user/' + data.users[i].id + '"><i class="icon-user"></i>' + data.users[i].name + '</a></li>');
   }
   document.getElementById('users').innerHTML = append.join('');
 });

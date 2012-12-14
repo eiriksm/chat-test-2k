@@ -135,7 +135,7 @@ app.get('/', function (req, res) {
   if (typeof req.user == 'undefined') {
     req.user = false;
   }
-  res.render('index', { title: 'chat 2000', user: req.user });
+  res.render('index', { title: 'Chat 2K', user: req.user });
 });
 
 app.get('/login', function (req, res) {

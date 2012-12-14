@@ -11,6 +11,8 @@ body {
 
 @import "../../../sass-twitter-bootstrap/lib/bootstrap";
 @import "../../../sass-twitter-bootstrap/lib/responsive";
+@import "../../../Font-Awesome/sass/font-awesome.scss";
+
 
 /* Jumbotrons
 -------------------------------------------------- */
@@ -50,6 +52,9 @@ body {
   color: #fff;
   text-shadow: 0 0 10px rgba(255,255,255,.25);
 }
+.jumbotron a.btn-info {
+  color: #000;
+}
 
 /* Download button */
 .masthead .btn {
@@ -84,7 +89,6 @@ body {
   right: 0;
   bottom: 0;
   left: 0;
-  background: url(../img/bs-docs-masthead-pattern.png) repeat center center;
   opacity: .4;
 }
 @media

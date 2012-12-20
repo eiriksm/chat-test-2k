@@ -29,6 +29,14 @@ app.configure(function() {
   app.use(app.router);
 });
 
+/**
+ * Just a generic callback, since callbacks are required now.
+ */
+var dblog = function(db) {
+  // Just empty for now. Could be logging like the following:
+  // console.log(db);
+}
+
 
 /**
  * Connect to database and make connection available as global var rdb.
@@ -37,7 +45,7 @@ app.configure(function() {
  */
 r.connect({host:'localhost', port:28015}, function(conn) {
   // Create the db if we don't have it (will not overwrite).
-  conn.run(r.dbCreate('chat'));
+  conn.run(r.dbCreate('chat'), dblog);
   // Set to use imdb as database.
   conn.use('chat');
   // rdb is now global connection.
@@ -58,7 +66,7 @@ r.connect({host:'localhost', port:28015}, function(conn) {
  */
 var writedb = function(table, obj, callback) {
    try {
-    rdb.run(r.table(table).insert(obj));
+    rdb.run(r.table(table).insert(obj), dblog);
    } catch(err) {
     // The database connection is most likely down.
     rdb.reconnect()
@@ -68,7 +76,7 @@ var writedb = function(table, obj, callback) {
 }
 
 function findById(id, fn) {
-  var user = rdb.run(r.table('users').get(id));
+  var user = rdb.run(r.table('users').get(id), dblog);
   user.collect(function(userdata) {
     fn(null, userdata[0]);
   })
@@ -76,7 +84,7 @@ function findById(id, fn) {
 }
 
 function findByMail(mail, fn) {
-  var user = rdb.run(r.table('users').filter({'mail': mail}).limit(1));
+  var user = rdb.run(r.table('users').filter({'mail': mail}).limit(1), dblog);
   user.collect(function(userdata) {
     if (userdata.length > 0 && userdata[0].mail === mail) {
       return fn(null, userdata[0]);
@@ -213,7 +221,7 @@ app.get('/user/:uid', ensureAuthenticated, function(req, res){
 
 var usersonline = {};
 io.sockets.on('connection', function (socket) {
-  var messages = rdb.run(r.table('messages').orderBy('-timestamp').limit(100));
+  var messages = rdb.run(r.table('messages').orderBy(r.desc('timestamp')).limit(100), dblog);
   messages.collect(function(messages) {
     // Send the last 100 messages to all users when they connect.
     socket.emit('history', messages);

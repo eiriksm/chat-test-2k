@@ -6,13 +6,20 @@
     "start": "node app"
   },
   "dependencies": {
-    "express": "*",
-    "jade": "*",
-    "rethinkdb": "*",
-    "passport": "*",
-    "passport-local": "*",
-    "bcrypt": "*",
-    "socket.io": "*",
-    "connect-flash": "*"
+    "bcrypt": "^0.8.4",
+    "body-parser": "^1.13.3",
+    "connect-flash": "^0.1.1",
+    "cookie-parser": "^1.3.5",
+    "express": "^4.13.3",
+    "express-session": "^1.11.3",
+    "jade": "^1.11.0",
+    "passport": "^0.2.2",
+    "passport-local": "^1.0.0",
+    "rethinkdb": "^2.0.2",
+    "socket.io": "^1.3.6"
+  },
+  "devDependencies": {
+    "bootstrap-sass": "^3.3.5",
+    "font-awesome": "^4.4.0"
   }
 }

@@ -1,3 +1,4 @@
+'use strict';
 var rdb = {};
 // Used for setting up tables laters.
 var tables = {
@@ -6,28 +7,29 @@ var tables = {
   'users': 'id'
 };
 
-var express = require('express')
-  , app = express()
-  , server = require('http').createServer(app)
-  , passport = require('passport')
-  , flash = require('connect-flash')
-  , local = require('passport-local').Strategy
-  , r = require('rethinkdb')
-  , bcrypt = require('bcrypt')
-  , io = require('socket.io').listen(server);
+var express = require('express');
+var app = express();
+var server = require('http').createServer(app);
+var passport = require('passport');
+var flash = require('connect-flash');
+var local = require('passport-local').Strategy;
+var r = require('rethinkdb');
+var bcrypt = require('bcrypt');
+var io = require('socket.io').listen(server);
+var bodyParser = require('body-parser');
+var cookieParser = require('cookie-parser');
+var session = require('express-session');
 
-app.configure(function() {
-  app.use(express.static('public'));
-  app.use(express.cookieParser());
-  app.set('views', __dirname + '/views');
-  app.set('view engine', 'jade');
-  app.use(express.bodyParser());
-  app.use(express.session({ secret: 'keyboard cat' }));
-  app.use(passport.initialize());
-  app.use(passport.session());
-  app.use(flash())
-  app.use(app.router);
-});
+app.use(express.static('public'));
+app.use(cookieParser());
+app.set('views', __dirname + '/views');
+app.set('view engine', 'jade');
+app.use(bodyParser.urlencoded({ extended: false }));
+
+app.use(session({ secret: 'keyboard cat' }));
+app.use(passport.initialize());
+app.use(passport.session());
+app.use(flash());
 
 /**
  * Just a generic callback, since callbacks are required now.
@@ -35,7 +37,7 @@ app.configure(function() {
 var dblog = function(db) {
   // Just empty for now. Could be logging like the following:
   // console.log(db);
-}
+};
 
 
 /**
@@ -43,16 +45,19 @@ var dblog = function(db) {
  *
  * Also set up tables if needed.
  */
-r.connect({host:'localhost', port:28015}, function(conn) {
+r.connect({host:'localhost', port:28015}, function(err, conn) {
+  if (err) {
+    throw err;
+  }
   // Create the db if we don't have it (will not overwrite).
-  conn.run(r.dbCreate('chat'), dblog);
+  r.dbCreate('chat').run(conn, dblog);
   // Set to use imdb as database.
   conn.use('chat');
   // rdb is now global connection.
   rdb = conn;
   // Set up all databases needed.
   for (var i in tables) {
-    r.db('chat').tableCreate({tableName: i, primaryKey: tables[i]}).run();
+    r.db('chat').tableCreate(i, {primaryKey: tables[i]}).run(conn, dblog);
   }
 });
 
@@ -66,30 +71,28 @@ r.connect({host:'localhost', port:28015}, function(conn) {
  */
 var writedb = function(table, obj, callback) {
    try {
-    rdb.run(r.table(table).insert(obj), dblog);
+    r.table(table).insert(obj).run(rdb, dblog);
    } catch(err) {
     // The database connection is most likely down.
-    rdb.reconnect()
+    rdb.reconnect();
     // @todo: What a super error handling, let's just try again.
     writedb(table, obj);
   }
 }
 
 function findById(id, fn) {
-  var user = rdb.run(r.table('users').get(id), dblog);
-  user.collect(function(userdata) {
-    fn(null, userdata[0]);
-  })
-  // @todo error-handling.
+  r.table('users').get(id).run(rdb, fn);
 }
 
 function findByMail(mail, fn) {
-  var user = rdb.run(r.table('users').filter({'mail': mail}).limit(1), dblog);
-  user.collect(function(userdata) {
-    if (userdata.length > 0 && userdata[0].mail === mail) {
-      return fn(null, userdata[0]);
-    }
-    return fn(null, null);
+  r.table('users').filter({'mail': mail}).limit(1).run(rdb, function(err, userdata) {
+    userdata.next()
+    .then(function(user) {
+      if (user && user.mail === mail) {
+        return fn(null, user);
+      }
+      return fn(null, null);
+    });
   });
 }
 
@@ -103,7 +106,6 @@ passport.use(new local(
       // indicate failure and set a flash message.  Otherwise, return the
       // authenticated `user`.
       findByMail(username, function(err, user) {
-        console.log(user);
         if (err) { return done(err); }
         if (!user) { return done(null, false, { message: 'Unknown user ' + username }); }
         if (!bcrypt.compareSync(password, user.password)) {
@@ -221,15 +223,16 @@ app.get('/user/:uid', ensureAuthenticated, function(req, res){
 
 var usersonline = {};
 io.sockets.on('connection', function (socket) {
-  var messages = rdb.run(r.table('messages').orderBy(r.desc('timestamp')).limit(100), dblog);
-  messages.collect(function(messages) {
-    // Send the last 100 messages to all users when they connect.
-    socket.emit('history', messages);
+  r.table('messages').orderBy(r.desc('timestamp')).limit(100).run(rdb, function(err, cur) {
+    cur.toArray()
+    .then(function(messages) {
+      socket.emit('history', messages);
+    });
   });
   var user;
   var i = setInterval(function() {
     socket.emit('whoshere', { 'users': usersonline });
-  }, 3000)
+  }, 3000);
   socket.on('iamhere', function(data) {
     // This is sent by users when they connect, so we can map them to a user.
     findById(data, function(placeholder, userobj) {
@@ -237,7 +240,7 @@ io.sockets.on('connection', function (socket) {
       usersonline[user.id] = {
         'id': data,
         'name': user.username
-      }
+      };
     });
   });
   socket.on('message', function (data) {
@@ -245,7 +248,7 @@ io.sockets.on('connection', function (socket) {
       message: data.message,
       from: user.username,
       timestamp: new Date().getTime()
-    }
+    };
     socket.emit('new message', message);
     // Save message.
     writedb('messages', message);

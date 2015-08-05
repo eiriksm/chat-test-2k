@@ -1,4 +1,4 @@
-var socket = io.connect('http://localhost');
+var socket = io.connect('http://localhost:8000');
 socket.emit('iamhere', document.getElementById('name').value);
 socket.on('new message', function (data) {
   var id = new Date().getTime();

@@ -9,10 +9,11 @@ body {
 }
 
 
-@import "../../../sass-twitter-bootstrap/lib/bootstrap";
-@import "../../../sass-twitter-bootstrap/lib/responsive";
-@import "../../../Font-Awesome/sass/font-awesome.scss";
-
+@import "../../../node_modules/bootstrap-sass/assets/stylesheets/bootstrap";
+@import "../../../node_modules/font-awesome/scss/font-awesome.scss";
+.navbar-brand {
+  @extend h1;
+}
 
 /* Jumbotrons
 -------------------------------------------------- */
@@ -161,6 +162,7 @@ input, button, select, textarea, body {
   background: #fff;
 }
 #header {
+  .small,
   small {
     font-size: 0.7em;
     margin: 0 20px;

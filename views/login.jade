@@ -6,12 +6,14 @@ block content
       h1= title
       if message
         .alert-warning.alert= message
-      form(action="login", method="post")
-        div
-          label(for="username") Email:
-          input(type="text", name="username", id="username")
-        div
-          label(for="password") Password:
-          input(type="password", name="password", id="password")
-        div
-          input(type="submit", value="Log in").btn.btn.success
+      .row
+        .col-sm-6.col-md-offset-3
+          form(action="login", method="post")
+            div.form-group
+              label(for="username") Email:
+              input(type="text", name="username", id="username").form-control
+            div.form-group
+              label(for="password") Password:
+              input(type="password", name="password", id="password").form-control
+            div.form-group
+              input(type="submit", value="Log in").btn.btn-success.btn-block

@@ -6,18 +6,20 @@ block content
       h1= title
       if message
         .alert-warning.alert= message
-      form(action="register", method="post")
-        div
-          label(for="username") Username:
-          input(type="text", name="username", id="username")
-        div
-          label(for="email") E-mail:
-          input(type="text", name="email", id="email")
-        div
-          label(for="password") Password:
-          input(type="password", name="password", id="password")
-        div
-          label(for="password2") Retype password:
-          input(type="password", name="password2", id="password2")
-        div
-          input(type="submit", value="Register").btn.btn.success
+      .row
+        .col-sm-6.col-md-offset-3
+          form(action="register", method="post")
+            div.form-group
+              label(for="username") Username:
+              input(type="text", name="username", id="username").form-control
+            div.form-group
+              label(for="email") E-mail:
+              input(type="text", name="email", id="email").form-control
+            div.form-group
+              label(for="password") Password:
+              input(type="password", name="password", id="password").form-control
+            div.form-group
+              label(for="password2") Retype password:
+              input(type="password", name="password2", id="password2").form-control
+            div.form-group
+              input(type="submit", value="Register").btn.btn-success.btn-block
